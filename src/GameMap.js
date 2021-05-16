@@ -137,6 +137,7 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
         map.addLayer(textLayer)
     }
 
+    // SETUP MAP on 1st load
     useEffect(() => {
         const initialMap = new Map({
             target: null,
@@ -144,12 +145,11 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
             view: new View({
                 center: franceCenter,
                 zoom: defaultZoom,
-                // maxZoom: 12,
-                // minZoom: 4,
+                maxZoom: 12,
+                minZoom: 4,
             }),
             controls: defaultControls().extend([new ZoomSlider()]),
         })
-
         setMap(initialMap);
     }, [])
 
