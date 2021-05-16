@@ -34,14 +34,13 @@ function usePrevious(value) {
     return ref.current;
 }
 
-function PublicMap({ layer, city, score, setScore, setDistance }) {
+function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicked }) {
     const [map, setMap] = useState(null)
     const prevLayer = usePrevious({ layer });
     const [userPoint, setUserPoint] = useState(null)
     const [cityPoint, setCityPoint] = useState(null)
     const [textPoint, setTextPoint] = useState(null)
     const [clickKey, setClickKey] = useState(null)
-    const [clicked, setClicked] = useState(false)
 
     const satelliteLayer = new TileLayer({
         source: new XYZ({
@@ -59,12 +58,6 @@ function PublicMap({ layer, city, score, setScore, setDistance }) {
             layer: 'terrain-background',
         }),
     })
-
-    // const terrainLinesLayer = new TileLayer({
-    //     source: new Stamen({
-    //         layer: 'terrain-lines',
-    //     }),
-    // })
 
     // const baseOSM = new TileLayer({
     //     source: new OSM()
@@ -218,4 +211,4 @@ function PublicMap({ layer, city, score, setScore, setDistance }) {
     )
 }
 
-export default PublicMap
+export default GameMap

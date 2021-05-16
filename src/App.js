@@ -1,6 +1,6 @@
 import './App.css';
 import React, { useEffect, useState } from 'react';
-import PublicMap from './PublicMap';
+import GameMap from './GameMap';
 import pin from './icons/pin.svg'
 import satellite from './img/satellite.png'
 import terrain from './img/terrain.png'
@@ -11,7 +11,7 @@ import Utils from './utils.js'
 
 function randomCities(citiesTotal) {
   let keyArray = Object.keys(prefectures);
-  keyArray = Utils.shuffleArray(keyArray); // shuffle it!
+  keyArray = Utils.shuffleArray(keyArray);
   let cities = []
   for (var i = 0; i < citiesTotal; ++i) {
     cities.push(prefectures[keyArray[i]]);
@@ -21,10 +21,12 @@ function randomCities(citiesTotal) {
 
 
 function App() {
-  const CITIES_TOTAL = 5;
+  const CITIES_TOTAL = 10;
 
   const [currentLayer, setCurrentLayer] = useState('satellite')
-  const [isPlaying, setIsPlaying] = useState(true)
+  // before user click for currentCity -> don't show 'next city'  button
+  const [isSearching, setIsSearching] = useState(true)
+  const [clicked, setClicked] = useState(false)
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [currentCity, setCurrentCity] = useState({
@@ -37,21 +39,36 @@ function App() {
   const cityNumber = currentIndex + 1
 
   useEffect(() => {
-    if(cities.length > 0) {
+    if (cities.length > 0) {
       setCurrentCity(cities[currentIndex])
     }
   }, [cities]);
 
   useEffect(() => {
     console.log(cities)
-    console.log(currentIndex)
-    if (currentIndex === CITIES_TOTAL) {
-      setIsPlaying(false)
-      return
+    if (currentIndex < CITIES_TOTAL) {
+      setIsSearching(true)
     }
     setCurrentCity(cities[currentIndex])
 
   }, [currentIndex]);
+
+  useEffect(() => {
+    // user just clicked, search done until "next city is clicked"
+    if (clicked) {
+      setIsSearching(false);
+    }
+  }, [clicked]);
+
+
+  const newGame = () => {
+    setScore(0)
+    setDistance(0)
+
+    setCities(randomCities(CITIES_TOTAL))
+    setCurrentIndex(0)
+    setIsSearching(true)
+  }
 
   return (
     <div className="App">
@@ -59,7 +76,7 @@ function App() {
       <div className="top">
         <div className="header">
           <div className="title">
-            <h1>Pin the city&nbsp;</h1> <img src={pin} alt="React Logo" width='20px' />
+            <h1>Pin the city&nbsp;</h1> <img src={pin} alt="pin logo" width='20px' />
           </div>
 
           <div className="edit-buttons">
@@ -86,10 +103,13 @@ function App() {
         </div>
 
         <div className="game">
-          <h2>{cityNumber}/{CITIES_TOTAL}</h2>
+          <button className="gameCount">{cityNumber}/{CITIES_TOTAL}</button>
           <h2>Placer la ville de {Utils.capitalize(currentCity.city)} {distance > 0 && (", " + distance + " km")}</h2>
-          {isPlaying && (currentIndex < CITIES_TOTAL-1) &&
-            <button onClick={() => setCurrentIndex(currentIndex + 1)}> Ville suivante</button>
+          {!isSearching && (currentIndex < CITIES_TOTAL - 1) &&
+            <button className="nextCity" onClick={() => setCurrentIndex(currentIndex + 1)}> Ville suivante</button>
+          }
+          {!isSearching && (currentIndex === CITIES_TOTAL - 1) &&
+            <button className="newGame" onClick={() => newGame()}>Rejouer</button>
           }
           <h2>Score : {score} </h2>
         </div>
@@ -97,7 +117,8 @@ function App() {
 
 
       <div className="box">
-        <PublicMap layer={currentLayer} city={currentCity} score={score} setScore={setScore} setDistance={setDistance} />
+        <GameMap layer={currentLayer} city={currentCity} score={score} setScore={setScore} setDistance={setDistance}
+          clicked={clicked} setClicked={setClicked} />
       </div>
     </div>
   );

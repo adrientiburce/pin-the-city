@@ -31,14 +31,16 @@ body {
 }
 
 .game button {
-  margin-left: 2em;
-  height: 25px;
   background-color: #edabab;
-  border-radius: 5px;
+  height: 25px;
   border: none;
   font-size: 20px;
 }
 
+.nextCity {
+  margin-left: 2em;
+  border-radius: 5px;
+}
 
 .title {
   margin-top: 1em;
@@ -70,4 +72,16 @@ caption {
 
 .edit-buttons {
   display: flex;
+}
+
+.gameCount {
+  height: 60px;
+  width: 60px;
+  border-radius: 100px;
+}
+
+button.newGame {
+  background-color: #cf463a;
+  color: #eee;
+  border-radius: 5px;
 }
