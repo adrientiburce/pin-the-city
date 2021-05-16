@@ -213,7 +213,6 @@ function PublicMap({ layer, city, score, setScore, setDistance }) {
         })
     }
 
-    // render component
     return (
         <div id="map" className="map-container"></div>
     )
