@@ -36,6 +36,7 @@ function App() {
   const [cities, setCities] = useState(randomCities(CITIES_TOTAL))
   const [score, setScore] = useState(0)
   const [distance, setDistance] = useState(0)
+  const [showLabel, setShowLabel] = useState(false)
   const cityNumber = currentIndex + 1
 
   useEffect(() => {
@@ -103,7 +104,15 @@ function App() {
         </div>
 
         <div className="game">
-          <button className="gameCount">{cityNumber}/{CITIES_TOTAL}</button>
+          <div>
+            <button className="gameCount">{cityNumber}/{CITIES_TOTAL}</button>
+            {!isSearching && <div className="showLabel" onClick={() => setShowLabel(!showLabel)} >
+              <input type="checkbox" name="label" id="label" checked={showLabel} />
+              <label for="cheese">Afficher la légende</label>
+            </div>}
+          </div>
+
+
           <h2>Placer la ville de {Utils.capitalize(currentCity.city)} {distance > 0 && (", " + distance + " km")}</h2>
           {!isSearching && (currentIndex < CITIES_TOTAL - 1) &&
             <button className="nextCity" onClick={() => setCurrentIndex(currentIndex + 1)}> Ville suivante</button>
@@ -118,7 +127,7 @@ function App() {
 
       <div className="box">
         <GameMap layer={currentLayer} city={currentCity} score={score} setScore={setScore} setDistance={setDistance}
-          clicked={clicked} setClicked={setClicked} />
+          clicked={clicked} setClicked={setClicked} showLabel={showLabel} />
       </div>
     </div>
   );

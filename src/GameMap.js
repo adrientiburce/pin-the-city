@@ -15,10 +15,10 @@ import Fill from 'ol/style/Fill'
 import { unByKey } from 'ol/Observable';
 import { transform } from 'ol/proj'
 import XYZ from 'ol/source/XYZ'
+import LayerGroup from 'ol/layer/Group';
 import Stamen from 'ol/source/Stamen'
 import ZoomSlider from 'ol/control/ZoomSlider';
 import { defaults as defaultControls } from 'ol/control';
-import GeoJSON from 'ol/format/GeoJSON';
 import "ol/ol.css";
 
 import Utils from './utils.js';
@@ -34,7 +34,7 @@ function usePrevious(value) {
     return ref.current;
 }
 
-function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicked }) {
+function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicked, showLabel }) {
     const [map, setMap] = useState(null)
     const prevLayer = usePrevious({ layer });
     const [userPoint, setUserPoint] = useState(null)
@@ -46,22 +46,45 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
     const franceCenter = [302151.8127592789, 5924266.214486205] // x,y point
 
     const satelliteLayer = new TileLayer({
+        visible: true,
         source: new XYZ({
             url: 'https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=17SpgImON6btgX4D98pg',
         }),
     })
-    const waterColorLayer = new TileLayer({
-        source: new Stamen({
-            layer: 'watercolor',
-        }),
-    })
-
     const terrainLayer = new TileLayer({
+        visible: false,
         source: new Stamen({
             layer: 'terrain-background',
         }),
     })
 
+    const waterColorLayer = new TileLayer({
+        visible: false,
+        source: new Stamen({
+            layer: 'watercolor',
+        }),
+    })
+    // label can be shown between user guess
+    const labelsLayer = new TileLayer({
+        visible: false,
+        opacity: 0.7,
+        source: new Stamen({
+            layer: 'terrain-labels',
+        }),
+    })
+
+    const [layers, setLayers] = useState({
+        'satellite': satelliteLayer,
+        'terrain': terrainLayer,
+        'watercolor': waterColorLayer,
+        'label': labelsLayer
+    })
+
+    const updateLayerVisibility = (layerName, value) => {
+        let newLayers = Object.assign({}, layers)
+        newLayers[layerName].setVisible(value)
+        setLayers(newLayers)
+    }
     // const baseOSM = new TileLayer({
     //     source: new OSM()
     // })
@@ -69,6 +92,7 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
     function addPin(point, rotation, srcIcon, isUser) {
         const feature = new Feature(new Point(point));
         const pinLayer = new VectorLayer({
+            title: 'pin',
             source: new VectorSource({
                 features: [feature]
             }),
@@ -105,30 +129,10 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
         map.addLayer(pinLayer)
     }
 
-
-    const getLayer = (layerName) => {
-        let usedLayer;
-        switch (layerName) {
-            case 'satellite':
-                usedLayer = satelliteLayer
-                break;
-            case 'terrain':
-                usedLayer = terrainLayer
-                break;
-            case 'watercolor':
-                usedLayer = waterColorLayer
-                break;
-            default:
-                usedLayer = terrainLayer
-                break;
-        }
-        return usedLayer
-    }
-
     useEffect(() => {
         const initialMap = new Map({
             target: null,
-            layers: [getLayer(layer)],
+            layers: Object.values(layers),
             view: new View({
                 center: franceCenter,
                 zoom: defaultZoom,
@@ -137,23 +141,24 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
             }),
             controls: defaultControls().extend([new ZoomSlider()]),
         })
+
         setMap(initialMap);
     }, [])
 
     useEffect(() => {
         if (map !== null) { //TODO: fix with checking not first render
             map.setTarget("map")
-            const cityLayLong = city.location.split(",")
+            const cityLatLong = city.location.split(",")
 
             let eventKey = map.on('click', function (evt) {
                 let userPoint = evt.coordinate
                 let userLonLat = transform(userPoint, 'EPSG:3857', 'EPSG:4326');
-                let cityXY = transform([cityLayLong[1], cityLayLong[0]], 'EPSG:4326', 'EPSG:3857');
+                let cityXY = transform([cityLatLong[1], cityLatLong[0]], 'EPSG:4326', 'EPSG:3857');
 
                 addPin(evt.coordinate, 0.15, pinUser, true)
                 addPin(cityXY, -0.15, pinCity, false)
 
-                let distance = Utils.calcCrow(cityLayLong[0], cityLayLong[1], userLonLat[1], userLonLat[0])
+                let distance = Utils.calcCrow(cityLatLong[0], cityLatLong[1], userLonLat[1], userLonLat[0])
                 setTimeout(() => {
                     smoothZoomOnPoint(cityXY, 12)
                 }, 300)
@@ -172,8 +177,10 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
 
     useEffect(() => {
         if (map != null) {
-            map.removeLayer(getLayer(prevLayer.layer))
-            map.addLayer(getLayer(layer))
+            let newLayers = Object.assign({}, layers)
+            newLayers[prevLayer.layer].setVisible(false)
+            newLayers[layer].setVisible(true)
+            setLayers(newLayers)
         }
     }, [layer]);
 
@@ -184,9 +191,12 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
             map.removeLayer(cityPoint)
             map.removeLayer(textPoint)
             unByKey(clickKey)
+
+            // prepare map for next search
             setDistance(0)
             map.getView().setZoom(defaultZoom)
             map.getView().setCenter(franceCenter)
+
         }
     }, [city])
 
@@ -196,7 +206,13 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
             setClicked(false)
         }
     }, [clicked])
-
+    useEffect(() => {
+        if (showLabel) {
+            updateLayerVisibility('label', true)
+        } else {
+            updateLayerVisibility('label', false)
+        }
+    }, [showLabel])
 
     function smoothZoomOnPoint(point, zoom) {
         map.getView().animate({
