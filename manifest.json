@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Pin the city",
+  "name": "Pint the City",
   "icons": [
     {
       "src": "favicon.ico",
