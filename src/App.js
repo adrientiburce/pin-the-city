@@ -26,7 +26,6 @@ function App() {
   const CITIES_TOTAL = 3;
 
   const [currentLayer, setCurrentLayer] = useState('satellite')
-  const [isSearching, setIsSearching] = useState(false)
   const [isPlaying, setIsPlaying] = useState(true)
 
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -35,6 +34,8 @@ function App() {
     location: ""
   })
   const [cities, setCities] = useState(randomCities(CITIES_TOTAL))
+  const [score, setScore] = useState(0)
+  const [distance, setDistance] = useState(0)
 
   useEffect(() => {
     console.log(cities);
@@ -92,16 +93,17 @@ function App() {
         </div>
 
         <div className="game">
-          <h2>Place la ville de {Utils.capitalize(currentCity.city)}</h2>
+          <h2>Placer la ville de {Utils.capitalize(currentCity.city)} {distance > 0 && (", " + distance + " km")}</h2>
           {isPlaying && (currentIndex < CITIES_TOTAL-1) &&
             <button onClick={() => setCurrentIndex(currentIndex + 1)}>{currentIndex} Ville suivante</button>
           }
+          <h2>Score : {score} </h2>
         </div>
       </div>
 
 
       <div className="box">
-        <PublicMap layer={currentLayer} city={currentCity} />
+        <PublicMap layer={currentLayer} city={currentCity} score={score} setScore={setScore} setDistance={setDistance} />
       </div>
     </div>
   );

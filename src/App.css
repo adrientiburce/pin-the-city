@@ -26,6 +26,7 @@ body {
 .game {
   flex-grow: 8;
   display: flex;
+  justify-content: space-around;
   align-items: center;
 }
 

@@ -13,13 +13,14 @@ import Style from 'ol/style/Style'
 import Icon from 'ol/style/Icon'
 import Text from 'ol/style/Text'
 import Fill from 'ol/style/Fill'
+import { unByKey } from 'ol/Observable';
 import { transform } from 'ol/proj'
-import OSM from 'ol/source/OSM'
 import XYZ from 'ol/source/XYZ'
 import Stamen from 'ol/source/Stamen'
-import "ol/ol.css";
 import ZoomSlider from 'ol/control/ZoomSlider';
 import { defaults as defaultControls } from 'ol/control';
+import "ol/ol.css";
+
 import Utils from './utils.js';
 import pinCity from './icons/pinCity.png'
 import pinUser from './icons/pinUser.png'
@@ -33,14 +34,13 @@ function usePrevious(value) {
     return ref.current;
 }
 
-
-
-
-function PublicMap({ layer, city }) {
+function PublicMap({ layer, city, score, setScore, setDistance }) {
     const [map, setMap] = useState(null)
     const prevLayer = usePrevious({ layer });
     const [userPoint, setUserPoint] = useState(null)
     const [cityPoint, setCityPoint] = useState(null)
+    const [textPoint, setTextPoint] = useState(null)
+    const [clickKey, setClickKey] = useState(null)
 
     const satelliteLayer = new TileLayer({
         source: new XYZ({
@@ -52,15 +52,22 @@ function PublicMap({ layer, city }) {
             layer: 'watercolor',
         }),
     })
+    
     const terrainLayer = new TileLayer({
         source: new Stamen({
             layer: 'terrain-background',
         }),
     })
+
+    const terrainLinesLayer = new TileLayer({
+        source: new Stamen({
+            layer: 'terrain-lines',
+        }),
+    })
     // const baseOSM = new TileLayer({
     //     source: new OSM()
     // })
-    
+
     function addPin(point, rotation, srcIcon, isUser) {
         const feature = new Feature(new Point(point));
         const pinLayer = new VectorLayer({
@@ -91,10 +98,11 @@ function PublicMap({ layer, city }) {
             })
         })
         if (isUser) {
-            setUserPoint(point)
+            setUserPoint(pinLayer)
         } else {
             map.addLayer(textLayer)
-            setCityPoint(point)
+            setCityPoint(pinLayer)
+            setTextPoint(textLayer)
         }
         map.addLayer(pinLayer)
     }
@@ -124,7 +132,7 @@ function PublicMap({ layer, city }) {
         const defaultZoom = 6
         const initialMap = new Map({
             target: null,
-            layers: [getLayer(layer)],
+            layers: [terrainLinesLayer, getLayer(layer)],
             view: new View({
                 center: franceCenter,
                 zoom: defaultZoom,
@@ -140,37 +148,51 @@ function PublicMap({ layer, city }) {
         if (map !== null) { //TODO: fix with checking not first render
             map.setTarget("map")
 
+            console.log("OnClick MAP", city)
             const cityLayLong = city.location.split(",")
-            map.on('click', function (evt) {
-                let userPoint = evt.coordinate
-                console.log(userPoint)
-                let userLonLat = transform(userPoint, 'EPSG:3857', 'EPSG:4326');
 
+            let eventKey = map.on('click', function (evt) {
+                let userPoint = evt.coordinate
+                let userLonLat = transform(userPoint, 'EPSG:3857', 'EPSG:4326');
                 let cityXY = transform([cityLayLong[1], cityLayLong[0]], 'EPSG:4326', 'EPSG:3857');
 
                 addPin(evt.coordinate, 0.15, pinUser, true)
                 addPin(cityXY, -0.15, pinCity, false)
 
-                console.log(Utils.calcCrow(cityLayLong[0], cityLayLong[1], userLonLat[1], userLonLat[0]), "KM")
+                let distance = Utils.calcCrow(cityLayLong[0], cityLayLong[1], userLonLat[1], userLonLat[0])
                 setTimeout(() => {
                     smoothZoomOnPoint(cityXY, 12)
                 }, 200)
+                let roundedDistance = Math.round(distance)
+                console.log("D", distance)
 
+                setDistance(roundedDistance)
+                if (distance < 100) {
+                    setScore(score + 100 - roundedDistance)
+                }
             })
+            setClickKey(eventKey)
         }
-    });
+    }, [city]);
 
     useEffect(() => {
         if (map != null) {
             console.log(prevLayer.layer, layer)
             map.removeLayer(getLayer(prevLayer.layer))
-            map.addLayer(getLayer(layer))
+            map.addLayer(getLayer(layer), terrainLinesLayer)
         }
     }, [layer]);
 
     useEffect(() => {
-        console.log("POINT", userPoint)
-    }, [userPoint]);
+        if (map !== null && userPoint !== null) {
+            console.log("city CHANGED", city)
+            map.removeLayer(userPoint)
+            map.removeLayer(cityPoint)
+            map.removeLayer(textPoint)
+            unByKey(clickKey)
+            setDistance(0)
+        }
+    }, [city])
 
 
     function smoothZoomOnPoint(point, zoom) {
@@ -181,13 +203,9 @@ function PublicMap({ layer, city }) {
         })
     }
 
-
-
     // render component
     return (
-        <>
-            <div id="map" className="map-container"></div>
-        </>
+        <div id="map" className="map-container"></div>
     )
 }
 
