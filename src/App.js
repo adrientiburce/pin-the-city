@@ -7,9 +7,6 @@ import terrain from './img/terrain.png'
 import watercolor from './img/watercolor.png'
 import prefectures from './data/prefectures.json'
 import Utils from './utils.js'
-import { preventDefault } from 'ol/events/Event';
-
-
 
 
 function randomCities(citiesTotal) {
@@ -21,9 +18,10 @@ function randomCities(citiesTotal) {
   }
   return cities
 }
-function App() {
 
-  const CITIES_TOTAL = 3;
+
+function App() {
+  const CITIES_TOTAL = 5;
 
   const [currentLayer, setCurrentLayer] = useState('satellite')
   const [isPlaying, setIsPlaying] = useState(true)
@@ -36,18 +34,13 @@ function App() {
   const [cities, setCities] = useState(randomCities(CITIES_TOTAL))
   const [score, setScore] = useState(0)
   const [distance, setDistance] = useState(0)
-
-  useEffect(() => {
-    console.log(cities);
-  }, []);
+  const cityNumber = currentIndex + 1
 
   useEffect(() => {
     if(cities.length > 0) {
       setCurrentCity(cities[currentIndex])
     }
   }, [cities]);
-
-
 
   useEffect(() => {
     console.log(cities)
@@ -73,19 +66,19 @@ function App() {
             {currentLayer !== 'satellite' &&
               <div className="map-edit" onClick={() => setCurrentLayer('satellite')}>
                 <img src={satellite} alt="satellite map" width='60px' />
-                <caption>Map Terrain</caption>
+                <caption>Vue Satelitte</caption>
               </div>
             }
             {currentLayer !== 'terrain' &&
               <div className="map-edit" onClick={() => setCurrentLayer('terrain')}>
                 <img src={terrain} alt="terrain map" width='60px' />
-                <caption>Map Terrain</caption>
+                <caption>Vue Carte</caption>
               </div>
             }
             {currentLayer !== 'watercolor' &&
               <div className="map-edit" onClick={() => setCurrentLayer('watercolor')}>
                 <img src={watercolor} alt="watercolor map" width='60px' />
-                <caption>Map Dessiné</caption>
+                <caption>Vue Dessiné</caption>
               </div>
             }
           </div>
@@ -93,9 +86,10 @@ function App() {
         </div>
 
         <div className="game">
+          <h2>{cityNumber}/{CITIES_TOTAL}</h2>
           <h2>Placer la ville de {Utils.capitalize(currentCity.city)} {distance > 0 && (", " + distance + " km")}</h2>
           {isPlaying && (currentIndex < CITIES_TOTAL-1) &&
-            <button onClick={() => setCurrentIndex(currentIndex + 1)}>{currentIndex} Ville suivante</button>
+            <button onClick={() => setCurrentIndex(currentIndex + 1)}> Ville suivante</button>
           }
           <h2>Score : {score} </h2>
         </div>

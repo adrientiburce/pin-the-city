@@ -4,8 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 // openlayers
 import Map from 'ol/Map'
 import View from 'ol/View'
-import TileLayer from 'ol/layer/Tile'
-import VectorLayer from 'ol/layer/Vector';
+import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import VectorSource from 'ol/source/Vector';
 import Feature from 'ol/Feature'
 import Point from 'ol/geom/Point'
@@ -19,6 +18,7 @@ import XYZ from 'ol/source/XYZ'
 import Stamen from 'ol/source/Stamen'
 import ZoomSlider from 'ol/control/ZoomSlider';
 import { defaults as defaultControls } from 'ol/control';
+import GeoJSON from 'ol/format/GeoJSON';
 import "ol/ol.css";
 
 import Utils from './utils.js';
@@ -41,6 +41,7 @@ function PublicMap({ layer, city, score, setScore, setDistance }) {
     const [cityPoint, setCityPoint] = useState(null)
     const [textPoint, setTextPoint] = useState(null)
     const [clickKey, setClickKey] = useState(null)
+    const [clicked, setClicked] = useState(false)
 
     const satelliteLayer = new TileLayer({
         source: new XYZ({
@@ -52,18 +53,19 @@ function PublicMap({ layer, city, score, setScore, setDistance }) {
             layer: 'watercolor',
         }),
     })
-    
+
     const terrainLayer = new TileLayer({
         source: new Stamen({
             layer: 'terrain-background',
         }),
     })
 
-    const terrainLinesLayer = new TileLayer({
-        source: new Stamen({
-            layer: 'terrain-lines',
-        }),
-    })
+    // const terrainLinesLayer = new TileLayer({
+    //     source: new Stamen({
+    //         layer: 'terrain-lines',
+    //     }),
+    // })
+
     // const baseOSM = new TileLayer({
     //     source: new OSM()
     // })
@@ -132,7 +134,7 @@ function PublicMap({ layer, city, score, setScore, setDistance }) {
         const defaultZoom = 6
         const initialMap = new Map({
             target: null,
-            layers: [terrainLinesLayer, getLayer(layer)],
+            layers: [getLayer(layer)],
             view: new View({
                 center: franceCenter,
                 zoom: defaultZoom,
@@ -144,11 +146,13 @@ function PublicMap({ layer, city, score, setScore, setDistance }) {
         setMap(initialMap);
     }, [])
 
+    const unBindKey = () => {
+        console.log(clickKey)
+        unByKey(clickKey)
+    }
     useEffect(() => {
         if (map !== null) { //TODO: fix with checking not first render
             map.setTarget("map")
-
-            console.log("OnClick MAP", city)
             const cityLayLong = city.location.split(",")
 
             let eventKey = map.on('click', function (evt) {
@@ -170,6 +174,7 @@ function PublicMap({ layer, city, score, setScore, setDistance }) {
                 if (distance < 100) {
                     setScore(score + 100 - roundedDistance)
                 }
+                setClicked(true)
             })
             setClickKey(eventKey)
         }
@@ -177,14 +182,13 @@ function PublicMap({ layer, city, score, setScore, setDistance }) {
 
     useEffect(() => {
         if (map != null) {
-            console.log(prevLayer.layer, layer)
             map.removeLayer(getLayer(prevLayer.layer))
-            map.addLayer(getLayer(layer), terrainLinesLayer)
+            map.addLayer(getLayer(layer))
         }
     }, [layer]);
 
     useEffect(() => {
-        if (map !== null && userPoint !== null) {
+        if (cityPoint !== null) { // TODO: change condition
             console.log("city CHANGED", city)
             map.removeLayer(userPoint)
             map.removeLayer(cityPoint)
@@ -194,9 +198,15 @@ function PublicMap({ layer, city, score, setScore, setDistance }) {
         }
     }, [city])
 
+    useEffect(() => {
+        if (clicked) {
+            unByKey(clickKey)
+            setClicked(false)
+        }
+    }, [clicked])
+
 
     function smoothZoomOnPoint(point, zoom) {
-        console.log(map)
         map.getView().animate({
             center: point,
             zoom: zoom
