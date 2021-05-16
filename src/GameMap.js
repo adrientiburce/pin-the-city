@@ -42,6 +42,9 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
     const [textPoint, setTextPoint] = useState(null)
     const [clickKey, setClickKey] = useState(null)
 
+    const defaultZoom = 6
+    const franceCenter = [302151.8127592789, 5924266.214486205] // x,y point
+
     const satelliteLayer = new TileLayer({
         source: new XYZ({
             url: 'https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=17SpgImON6btgX4D98pg',
@@ -123,8 +126,6 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
     }
 
     useEffect(() => {
-        const franceCenter = [302151.8127592789, 5924266.214486205] // x,y point
-        const defaultZoom = 6
         const initialMap = new Map({
             target: null,
             layers: [getLayer(layer)],
@@ -139,10 +140,6 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
         setMap(initialMap);
     }, [])
 
-    const unBindKey = () => {
-        console.log(clickKey)
-        unByKey(clickKey)
-    }
     useEffect(() => {
         if (map !== null) { //TODO: fix with checking not first render
             map.setTarget("map")
@@ -159,7 +156,7 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
                 let distance = Utils.calcCrow(cityLayLong[0], cityLayLong[1], userLonLat[1], userLonLat[0])
                 setTimeout(() => {
                     smoothZoomOnPoint(cityXY, 12)
-                }, 200)
+                }, 300)
                 let roundedDistance = Math.round(distance)
                 console.log("D", distance)
 
@@ -188,6 +185,8 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
             map.removeLayer(textPoint)
             unByKey(clickKey)
             setDistance(0)
+            map.getView().setZoom(defaultZoom)
+            map.getView().setCenter(franceCenter)
         }
     }, [city])
 
