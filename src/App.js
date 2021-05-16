@@ -109,9 +109,9 @@ function App() {
           <div className='centerVertical'>
             <h3>Quizz Préféctures</h3>
             <button className="gameCount">{cityNumber}/{CITIES_TOTAL}</button>
-            {!isSearching && <div className="showLabel" onClick={() => setShowLabel(!showLabel)} >
-              <input type="checkbox" name="label" id="label" checked={showLabel} />
-              <label for="cheese">Afficher la légende</label>
+            {!isSearching && <div className="showLabel" >
+              <input type="checkbox" name="label" id="label" onChange={() => setShowLabel(!showLabel)}/>
+              <label for="label">Afficher la légende</label>
             </div>}
           </div>
 

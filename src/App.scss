@@ -3,7 +3,11 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
-h1, h2, h3, h4, h5 {
+h1,
+h2,
+h3,
+h4,
+h5 {
   margin: 0;
 }
 
@@ -88,6 +92,7 @@ caption {
   width: 60px;
   border-radius: 100px;
   margin-bottom: 10px;
+  cursor: auto;
 }
 
 button.newGame {
@@ -103,7 +108,7 @@ button.newGame {
 }
 
 .score {
-  color:#cf463a;
+  color: #cf463a;
 }
 
 .cityToGuess {
