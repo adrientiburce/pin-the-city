@@ -1,0 +1,29 @@
+{
+  "files": {
+    "main.css": "/pin-the-city/static/css/main.881ae783.chunk.css",
+    "main.js": "/pin-the-city/static/js/main.3ae3f24c.chunk.js",
+    "main.js.map": "/pin-the-city/static/js/main.3ae3f24c.chunk.js.map",
+    "runtime-main.js": "/pin-the-city/static/js/runtime-main.0f4dc034.js",
+    "runtime-main.js.map": "/pin-the-city/static/js/runtime-main.0f4dc034.js.map",
+    "static/css/2.7ebcfb48.chunk.css": "/pin-the-city/static/css/2.7ebcfb48.chunk.css",
+    "static/js/2.a64a1e46.chunk.js": "/pin-the-city/static/js/2.a64a1e46.chunk.js",
+    "static/js/2.a64a1e46.chunk.js.map": "/pin-the-city/static/js/2.a64a1e46.chunk.js.map",
+    "static/js/3.a406bb5f.chunk.js": "/pin-the-city/static/js/3.a406bb5f.chunk.js",
+    "static/js/3.a406bb5f.chunk.js.map": "/pin-the-city/static/js/3.a406bb5f.chunk.js.map",
+    "index.html": "/pin-the-city/index.html",
+    "static/css/2.7ebcfb48.chunk.css.map": "/pin-the-city/static/css/2.7ebcfb48.chunk.css.map",
+    "static/css/main.881ae783.chunk.css.map": "/pin-the-city/static/css/main.881ae783.chunk.css.map",
+    "static/js/2.a64a1e46.chunk.js.LICENSE.txt": "/pin-the-city/static/js/2.a64a1e46.chunk.js.LICENSE.txt",
+    "static/media/pin.cb6cde87.svg": "/pin-the-city/static/media/pin.cb6cde87.svg",
+    "static/media/satellite.98aa5691.png": "/pin-the-city/static/media/satellite.98aa5691.png",
+    "static/media/terrain.0905c933.png": "/pin-the-city/static/media/terrain.0905c933.png",
+    "static/media/watercolor.419c9c9e.png": "/pin-the-city/static/media/watercolor.419c9c9e.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.0f4dc034.js",
+    "static/css/2.7ebcfb48.chunk.css",
+    "static/js/2.a64a1e46.chunk.js",
+    "static/css/main.881ae783.chunk.css",
+    "static/js/main.3ae3f24c.chunk.js"
+  ]
+}
