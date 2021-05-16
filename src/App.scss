@@ -3,6 +3,10 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
+h1, h2, h3, h4, h5 {
+  margin: 0;
+}
+
 .map-container {
   width: 100%;
   height: 80vh;
@@ -13,7 +17,7 @@ body {
 
 .top {
   display: flex;
-  height: 20vh;
+  min-height: 20vh;
 }
 
 .header {
@@ -71,17 +75,37 @@ caption {
 }
 
 .edit-buttons {
+  margin-top: 5px;
   display: flex;
+
+  & :hover {
+    cursor: pointer;
+  }
 }
 
 .gameCount {
   height: 60px;
   width: 60px;
   border-radius: 100px;
+  margin-bottom: 10px;
 }
 
 button.newGame {
   background-color: #cf463a;
   color: #eee;
   border-radius: 5px;
+}
+
+.centerVertical {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.score {
+  color:#cf463a;
+}
+
+.cityToGuess {
+  text-decoration: underline;
 }

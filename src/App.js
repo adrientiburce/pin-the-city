@@ -1,4 +1,4 @@
-import './App.css';
+import './App.scss';
 import React, { useEffect, useState } from 'react';
 import GameMap from './GameMap';
 import pin from './icons/pin.svg'
@@ -49,6 +49,7 @@ function App() {
     console.log(cities)
     if (currentIndex < CITIES_TOTAL) {
       setIsSearching(true)
+      setShowLabel(false)
     }
     setCurrentCity(cities[currentIndex])
 
@@ -75,6 +76,7 @@ function App() {
     <div className="App">
 
       <div className="top">
+        
         <div className="header">
           <div className="title">
             <h1>Pin the city&nbsp;</h1> <img src={pin} alt="pin logo" width='20px' />
@@ -83,19 +85,19 @@ function App() {
           <div className="edit-buttons">
             {currentLayer !== 'satellite' &&
               <div className="map-edit" onClick={() => setCurrentLayer('satellite')}>
-                <img src={satellite} alt="satellite map" width='60px' />
+                <img src={satellite} alt="satellite map" width='50px' />
                 <caption>Vue Satelitte</caption>
               </div>
             }
             {currentLayer !== 'terrain' &&
               <div className="map-edit" onClick={() => setCurrentLayer('terrain')}>
-                <img src={terrain} alt="terrain map" width='60px' />
+                <img src={terrain} alt="terrain map" width='50px' />
                 <caption>Vue Carte</caption>
               </div>
             }
             {currentLayer !== 'watercolor' &&
               <div className="map-edit" onClick={() => setCurrentLayer('watercolor')}>
-                <img src={watercolor} alt="watercolor map" width='60px' />
+                <img src={watercolor} alt="watercolor map" width='50px' />
                 <caption>Vue Dessiné</caption>
               </div>
             }
@@ -104,7 +106,8 @@ function App() {
         </div>
 
         <div className="game">
-          <div>
+          <div className='centerVertical'>
+            <h3>Quizz Préféctures</h3>
             <button className="gameCount">{cityNumber}/{CITIES_TOTAL}</button>
             {!isSearching && <div className="showLabel" onClick={() => setShowLabel(!showLabel)} >
               <input type="checkbox" name="label" id="label" checked={showLabel} />
@@ -112,15 +115,18 @@ function App() {
             </div>}
           </div>
 
+          <div className='centerVertical'>
+            <h2>Placer la ville : <strong className="cityToGuess">{Utils.capitalize(currentCity.city)}</strong></h2>
+            <h3>{distance > 0 && ("distance: " + distance + " km")}</h3>
+          </div>
 
-          <h2>Placer la ville de {Utils.capitalize(currentCity.city)} {distance > 0 && (", " + distance + " km")}</h2>
           {!isSearching && (currentIndex < CITIES_TOTAL - 1) &&
             <button className="nextCity" onClick={() => setCurrentIndex(currentIndex + 1)}> Ville suivante</button>
           }
           {!isSearching && (currentIndex === CITIES_TOTAL - 1) &&
             <button className="newGame" onClick={() => newGame()}>Rejouer</button>
           }
-          <h2>Score : {score} </h2>
+          <h2 className="score">Score : {score} </h2>
         </div>
       </div>
 

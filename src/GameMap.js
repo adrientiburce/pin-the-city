@@ -15,7 +15,6 @@ import Fill from 'ol/style/Fill'
 import { unByKey } from 'ol/Observable';
 import { transform } from 'ol/proj'
 import XYZ from 'ol/source/XYZ'
-import LayerGroup from 'ol/layer/Group';
 import Stamen from 'ol/source/Stamen'
 import ZoomSlider from 'ol/control/ZoomSlider';
 import { defaults as defaultControls } from 'ol/control';
@@ -40,6 +39,7 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
     const [userPoint, setUserPoint] = useState(null)
     const [cityPoint, setCityPoint] = useState(null)
     const [textPoint, setTextPoint] = useState(null)
+    const [textUserPoint, setTextUserPoint] = useState(null)
     const [clickKey, setClickKey] = useState(null)
 
     const defaultZoom = 6
@@ -64,7 +64,7 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
             layer: 'watercolor',
         }),
     })
-    // label can be shown between user guess
+    // cities label can be shown between user guess
     const labelsLayer = new TileLayer({
         visible: false,
         opacity: 0.7,
@@ -91,7 +91,7 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
 
     function addPin(point, rotation, srcIcon, isUser) {
         const feature = new Feature(new Point(point));
-        const pinLayer = new VectorLayer({
+        const pinLayer = new VectorLayer({  
             title: 'pin',
             source: new VectorSource({
                 features: [feature]
@@ -104,13 +104,23 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
                 })
             })
         });
+        if (isUser) {
+            setUserPoint(pinLayer)
+        } else {
+            setCityPoint(pinLayer)
+        }
+        map.addLayer(pinLayer)
+    }
+
+    function addText(point, text, isUser) {
+        const feature = new Feature(new Point(point));
         const textLayer = new VectorLayer({
             source: new VectorSource({
                 features: [feature]
             }),
             style: new Style({
                 text: new Text({
-                    text: Utils.capitalize(city.city),
+                    text: text,
                     fill: new Fill({
                         color: '#fff'
                     }),
@@ -120,13 +130,11 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
             })
         })
         if (isUser) {
-            setUserPoint(pinLayer)
+            setTextUserPoint(textLayer)
         } else {
-            map.addLayer(textLayer)
-            setCityPoint(pinLayer)
             setTextPoint(textLayer)
         }
-        map.addLayer(pinLayer)
+        map.addLayer(textLayer)
     }
 
     useEffect(() => {
@@ -136,8 +144,8 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
             view: new View({
                 center: franceCenter,
                 zoom: defaultZoom,
-                maxZoom: 12,
-                minZoom: 4,
+                // maxZoom: 12,
+                // minZoom: 4,
             }),
             controls: defaultControls().extend([new ZoomSlider()]),
         })
@@ -157,6 +165,8 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
 
                 addPin(evt.coordinate, 0.15, pinUser, true)
                 addPin(cityXY, -0.15, pinCity, false)
+                addText(evt.coordinate, "Votre point", true)
+                addText(cityXY, Utils.capitalize(city.city), false)
 
                 let distance = Utils.calcCrow(cityLatLong[0], cityLatLong[1], userLonLat[1], userLonLat[0])
                 setTimeout(() => {
@@ -190,6 +200,7 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
             map.removeLayer(userPoint)
             map.removeLayer(cityPoint)
             map.removeLayer(textPoint)
+            map.removeLayer(textUserPoint)
             unByKey(clickKey)
 
             // prepare map for next search
