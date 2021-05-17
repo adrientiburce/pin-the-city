@@ -14,10 +14,10 @@ import Text from 'ol/style/Text'
 import Fill from 'ol/style/Fill'
 import { unByKey } from 'ol/Observable';
 import { transform } from 'ol/proj'
-import XYZ from 'ol/source/XYZ'
 import Stamen from 'ol/source/Stamen'
 import ZoomSlider from 'ol/control/ZoomSlider';
-import { defaults as defaultControls } from 'ol/control';
+import { ScaleLine, defaults as defaultControls } from 'ol/control';
+import BingMaps from 'ol/source/BingMaps';
 import "ol/ol.css";
 
 import Utils from './utils.js';
@@ -45,10 +45,19 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
     const defaultZoom = 6
     const franceCenter = [302151.8127592789, 5924266.214486205] // x,y point
 
-    const satelliteLayer = new TileLayer({
+    // const satelliteLayer = new TileLayer({
+    //     visible: true,
+    //     source: new XYZ({
+    //         url: 'https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=17SpgImON6btgX4D98pg',
+    //     }),
+    // })
+    const bingLayer = new TileLayer({
         visible: true,
-        source: new XYZ({
-            url: 'https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=17SpgImON6btgX4D98pg',
+        preload: Infinity,
+        source: new BingMaps({
+            key: 'Ajnxmsnrj5Iq7ywEYGbnmzL9BC-x-UafCSyzwB_FxgtJFbm15JA3Jf3WK_DCW9T3',
+            imagerySet: 'Aerial',
+            maxZoom: 19,
         }),
     })
     const terrainLayer = new TileLayer({
@@ -74,10 +83,10 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
     })
 
     const [layers, setLayers] = useState({
-        'satellite': satelliteLayer,
+        'satellite': bingLayer,
         'terrain': terrainLayer,
         'watercolor': waterColorLayer,
-        'label': labelsLayer
+        'label': labelsLayer,
     })
 
     const updateLayerVisibility = (layerName, value) => {
@@ -91,7 +100,7 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
 
     function addPin(point, rotation, srcIcon, isUser) {
         const feature = new Feature(new Point(point));
-        const pinLayer = new VectorLayer({  
+        const pinLayer = new VectorLayer({
             title: 'pin',
             source: new VectorSource({
                 features: [feature]
@@ -139,18 +148,21 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
 
     // SETUP MAP on 1st load
     useEffect(() => {
-        const initialMap = new Map({
-            target: null,
-            layers: Object.values(layers),
-            view: new View({
-                center: franceCenter,
-                zoom: defaultZoom,
-                maxZoom: 12,
-                minZoom: 4,
-            }),
-            controls: defaultControls().extend([new ZoomSlider()]),
-        })
-        setMap(initialMap);
+        function initMap() {
+            const initialMap = new Map({
+                target: null,
+                layers: Object.values(layers),
+                view: new View({
+                    center: franceCenter,
+                    zoom: defaultZoom,
+                    maxZoom: 12,
+                    minZoom: 4,
+                }),
+                controls: defaultControls({rotate: false}).extend([new ZoomSlider()]),
+            })
+            setMap(initialMap);
+        }
+        initMap();
     }, [])
 
     useEffect(() => {
@@ -169,15 +181,13 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
                 addText(cityXY, Utils.capitalize(city.city), false)
 
                 let distance = Utils.calcCrow(cityLatLong[0], cityLatLong[1], userLonLat[1], userLonLat[0])
+                setDistance(distance)
                 setTimeout(() => {
                     smoothZoomOnPoint(cityXY, 12)
                 }, 300)
-                let roundedDistance = Math.round(distance)
-                console.log("D", distance)
 
-                setDistance(roundedDistance)
                 if (distance < 100) {
-                    setScore(score + 100 - roundedDistance)
+                    setScore(score + 100 - Math.round(distance))
                 }
                 setClicked(true)
             })
@@ -196,7 +206,6 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
 
     useEffect(() => {
         if (cityPoint !== null) { // TODO: change condition
-            console.log("city CHANGED", city)
             map.removeLayer(userPoint)
             map.removeLayer(cityPoint)
             map.removeLayer(textPoint)

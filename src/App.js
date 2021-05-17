@@ -8,7 +8,6 @@ import watercolor from './img/watercolor.png'
 import prefectures from './data/prefectures.json'
 import Utils from './utils.js'
 
-
 function randomCities(citiesTotal) {
   let keyArray = Object.keys(prefectures);
   keyArray = Utils.shuffleArray(keyArray);
@@ -46,7 +45,6 @@ function App() {
   }, [cities]);
 
   useEffect(() => {
-    console.log(cities)
     if (currentIndex < CITIES_TOTAL) {
       setIsSearching(true)
       setShowLabel(false)
@@ -62,7 +60,6 @@ function App() {
     }
   }, [clicked]);
 
-
   const newGame = () => {
     setScore(0)
     setDistance(0)
@@ -76,7 +73,6 @@ function App() {
     <div className="App">
 
       <div className="top">
-        
         <div className="header">
           <div className="title">
             <h1>Pin the city&nbsp;</h1> <img src={pin} alt="pin logo" width='20px' />
@@ -86,19 +82,19 @@ function App() {
             {currentLayer !== 'satellite' &&
               <div className="map-edit" onClick={() => setCurrentLayer('satellite')}>
                 <img src={satellite} alt="satellite map" width='50px' />
-                <caption>Vue Satelitte</caption>
+                <span className="map-btn">Vue Satelitte</span>
               </div>
             }
             {currentLayer !== 'terrain' &&
               <div className="map-edit" onClick={() => setCurrentLayer('terrain')}>
                 <img src={terrain} alt="terrain map" width='50px' />
-                <caption>Vue Carte</caption>
+                <span className="map-btn">Vue Carte</span>
               </div>
             }
             {currentLayer !== 'watercolor' &&
               <div className="map-edit" onClick={() => setCurrentLayer('watercolor')}>
                 <img src={watercolor} alt="watercolor map" width='50px' />
-                <caption>Vue Dessiné</caption>
+                <span className="map-btn">Vue Dessiné</span>
               </div>
             }
           </div>
@@ -111,22 +107,25 @@ function App() {
             <button className="gameCount">{cityNumber}/{CITIES_TOTAL}</button>
             {!isSearching && <div className="showLabel" >
               <input type="checkbox" name="label" id="label" onChange={() => setShowLabel(!showLabel)}/>
-              <label for="label">Afficher la légende</label>
+              <label htmlFor="label">Afficher la légende</label>
             </div>}
           </div>
 
           <div className='centerVertical'>
             <h2>Placer la ville : <strong className="cityToGuess">{Utils.capitalize(currentCity.city)}</strong></h2>
-            <h3>{distance > 0 && ("distance: " + distance + " km")}</h3>
+            <h3>{distance !== 0 && ((distance <= 1 && "distance < 1 km") || ("distance: " + Math.round(distance) + " km"))}</h3>
           </div>
 
           {!isSearching && (currentIndex < CITIES_TOTAL - 1) &&
-            <button className="nextCity" onClick={() => setCurrentIndex(currentIndex + 1)}> Ville suivante</button>
+            <button className="nextCity" onClick={() => setCurrentIndex(currentIndex + 1)}>Ville suivante</button>
           }
           {!isSearching && (currentIndex === CITIES_TOTAL - 1) &&
             <button className="newGame" onClick={() => newGame()}>Rejouer</button>
           }
-          <h2 className="score">Score : {score} </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <h2 className="score">Score : {score} </h2>
+            <h3 className="score">{distance > 0 && distance < 100 && "(+ " + (100 - Math.round(distance)) + ")"}</h3>
+          </div>
         </div>
       </div>
 
