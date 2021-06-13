@@ -1,0 +1,47 @@
+.game {
+  flex-grow: 8;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.game button {
+  background-color: $game-button;
+  margin-top: .3em;
+  height: 25px;
+  border: none;
+  font-size: 20px;
+  padding: 0 10px;
+  color: $background-color;
+}
+
+.nextCity {
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+}
+
+.title {
+  margin-top: 1em;
+  display: flex;
+  justify-content: center;
+}
+
+.currentCity {
+  font-family: 'Poppins', sans-serif;
+}
+
+.score {
+  color: $red-button;
+  margin-top: .2em;
+  font-weight: 500;
+}
+
+.cityToGuess {
+  text-decoration: underline;
+}
+
+.map-btn {
+  margin-top: .2em;
+  font-size: 13px;
+}

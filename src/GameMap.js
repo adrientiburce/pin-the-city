@@ -1,7 +1,5 @@
-// react
 import React, { useState, useEffect, useRef } from 'react';
 
-// openlayers
 import Map from 'ol/Map'
 import View from 'ol/View'
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
@@ -16,7 +14,7 @@ import { unByKey } from 'ol/Observable';
 import { transform } from 'ol/proj'
 import Stamen from 'ol/source/Stamen'
 import ZoomSlider from 'ol/control/ZoomSlider';
-import { ScaleLine, defaults as defaultControls } from 'ol/control';
+import { defaults as defaultControls } from 'ol/control';
 import BingMaps from 'ol/source/BingMaps';
 import "ol/ol.css";
 
@@ -42,7 +40,8 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
     const [textUserPoint, setTextUserPoint] = useState(null)
     const [clickKey, setClickKey] = useState(null)
 
-    const defaultZoom = 6
+    const RESPONSE_ZOOM = 12
+    const DEFAULT_ZOOM = 6
     const franceCenter = [302151.8127592789, 5924266.214486205] // x,y point
 
     // const satelliteLayer = new TileLayer({
@@ -60,6 +59,7 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
             maxZoom: 19,
         }),
     })
+
     const terrainLayer = new TileLayer({
         visible: false,
         source: new Stamen({
@@ -94,9 +94,6 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
         newLayers[layerName].setVisible(value)
         setLayers(newLayers)
     }
-    // const baseOSM = new TileLayer({
-    //     source: new OSM()
-    // })
 
     function addPin(point, rotation, srcIcon, isUser) {
         const feature = new Feature(new Point(point));
@@ -154,11 +151,11 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
                 layers: Object.values(layers),
                 view: new View({
                     center: franceCenter,
-                    zoom: defaultZoom,
+                    zoom: DEFAULT_ZOOM,
                     maxZoom: 12,
                     minZoom: 4,
                 }),
-                controls: defaultControls({rotate: false}).extend([new ZoomSlider()]),
+                controls: defaultControls({ rotate: false, pinchRotate: false }).extend([new ZoomSlider()]),
             })
             setMap(initialMap);
         }
@@ -183,7 +180,7 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
                 let distance = Utils.calcCrow(cityLatLong[0], cityLatLong[1], userLonLat[1], userLonLat[0])
                 setDistance(distance)
                 setTimeout(() => {
-                    smoothZoomOnPoint(cityXY, 12)
+                    smoothZoomOnPoint(cityXY, RESPONSE_ZOOM)
                 }, 300)
 
                 if (distance < 100) {
@@ -214,7 +211,7 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
 
             // prepare map for next search
             setDistance(0)
-            map.getView().setZoom(defaultZoom)
+            map.getView().setZoom(DEFAULT_ZOOM)
             map.getView().setCenter(franceCenter)
 
         }

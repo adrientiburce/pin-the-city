@@ -30,8 +30,10 @@ function shuffleArray(array) {
     return array
 }
 
-export default {
+const utils = {
     capitalize,
     calcCrow,
     shuffleArray,
 }
+
+export default utils
