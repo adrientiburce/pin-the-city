@@ -112,26 +112,27 @@ function App() {
                         </div>}
                     </div>
 
-                    <div className='centerVertical'>
-                        <h2 className="currentCity">Placer la ville : <strong className="cityToGuess">{Utils.capitalize(currentCity.city)}</strong></h2>
-                        <h3>{distance !== 0 && ((distance <= 1 && "distance < 1 km") || ("distance : " + Math.round(distance) + " km"))}</h3>
-                    </div>
+                    {/* <div className="mobile-column"> */}
+                        <div className='centerVertical'>
+                            <h2 className="currentCity">Placer la ville : <strong className="cityToGuess">{Utils.capitalize(currentCity.city)}</strong></h2>
+                            <h3>{distance !== 0 && ((distance <= 1 && "distance < 1 km") || ("distance : " + Math.round(distance) + " km"))}</h3>
+                        </div>
 
-                    <div className='centerVertical'>
+                        <div className='centerVertical'>
+                            {!isSearching && (currentIndex === CITIES_TOTAL - 1) &&
+                                <button className="newGame" onClick={() => newGame()}>Rejouer</button>
+                            }
 
-                        {!isSearching && (currentIndex === CITIES_TOTAL - 1) &&
-                            <button className="newGame" onClick={() => newGame()}>Rejouer</button>
-                        }
+                            {!isSearching && (currentIndex < CITIES_TOTAL - 1) &&
+                                <button className="nextCity" onClick={() => setCurrentIndex(currentIndex + 1)}>
+                                    <img src={rightArrow} alt="" height="15px" />
+                                    <span>Ville suivante</span>
+                                </button>
+                            }
 
-                        {!isSearching && (currentIndex < CITIES_TOTAL - 1) &&
-                            <button className="nextCity" onClick={() => setCurrentIndex(currentIndex + 1)}>
-                                <img src={rightArrow} alt="" height="15px" />
-                                <span>Ville suivante</span>
-                            </button>
-                        }
-
-                        <h2 className="score">Score : {score} {distance > 0 && distance < 100 && "(+" + (100 - Math.round(distance)) + ")"}</h2>
-                    </div>
+                            <h2 className="score">Score : {score} {distance > 0 && distance < 100 && "(+" + (100 - Math.round(distance)) + ")"}</h2>
+                        </div>
+                    {/* </div> */}
                 </div>
             </div>
 
