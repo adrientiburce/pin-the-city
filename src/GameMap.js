@@ -13,6 +13,7 @@ import Fill from 'ol/style/Fill'
 import { unByKey } from 'ol/Observable';
 import { transform } from 'ol/proj'
 import Stamen from 'ol/source/Stamen'
+import XYZ from 'ol/source/XYZ';
 import ZoomSlider from 'ol/control/ZoomSlider';
 import { defaults as defaultControls } from 'ol/control';
 import BingMaps from 'ol/source/BingMaps';
@@ -40,21 +41,22 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
     const [textUserPoint, setTextUserPoint] = useState(null)
     const [clickKey, setClickKey] = useState(null)
 
-    const RESPONSE_ZOOM = 12
+    const RESPONSE_ZOOM = 12 // zoom used when the right location is shown to user
     const DEFAULT_ZOOM = 6
     const franceCenter = [302151.8127592789, 5924266.214486205] // x,y point
 
     // const satelliteLayer = new TileLayer({
     //     visible: true,
     //     source: new XYZ({
-    //         url: 'https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=17SpgImON6btgX4D98pg',
+    //         url: `https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=${process.env.REACT_APP_MAPTILER_API_KEY}`,
     //     }),
     // })
+
     const bingLayer = new TileLayer({
         visible: true,
         preload: Infinity,
         source: new BingMaps({
-            key: 'Ajnxmsnrj5Iq7ywEYGbnmzL9BC-x-UafCSyzwB_FxgtJFbm15JA3Jf3WK_DCW9T3',
+            key: process.env.REACT_APP_BING_API_KEY,
             imagerySet: 'Aerial',
             maxZoom: 19,
         }),
@@ -143,7 +145,7 @@ function GameMap({ layer, city, score, setScore, setDistance, clicked, setClicke
         map.addLayer(textLayer)
     }
 
-    // SETUP MAP on 1st load
+    // setup on 1st load
     useEffect(() => {
         function initMap() {
             const initialMap = new Map({
